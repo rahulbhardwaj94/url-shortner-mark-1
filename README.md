@@ -69,10 +69,10 @@ MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=your-password
-MYSQL_DATABASE=todo_app
+MYSQL_DATABASE=testLocalDB
 
 # MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/todo_app
+MONGODB_URI=mongodb://localhost:27017/
 
 # Redis Configuration
 REDIS_HOST=localhost

@@ -5,8 +5,8 @@ export default registerAs('database', () => ({
     host: process.env.MYSQL_HOST || 'localhost',
     port: parseInt(process.env.MYSQL_PORT, 10) || 3306,
     username: process.env.MYSQL_USERNAME || 'root',
-    password: process.env.MYSQL_PASSWORD || 'password',
-    database: process.env.MYSQL_DATABASE || 'todo_app',
+    password: process.env.MYSQL_PASSWORD || 'newMysql@123',
+    database: process.env.MYSQL_DATABASE || 'testLocalDB',
     dialect: 'mysql',
     logging: process.env.NODE_ENV === 'development',
     pool: {
@@ -21,8 +21,8 @@ export default registerAs('database', () => ({
     },
   },
   mongodb: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/todo_app',
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useUnifiedTopology: true,
   },
 }));

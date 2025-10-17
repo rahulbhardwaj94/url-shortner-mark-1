@@ -63,10 +63,10 @@ MYSQL_HOST=your-rds-endpoint.amazonaws.com
 MYSQL_PORT=3306
 MYSQL_USERNAME=your-username
 MYSQL_PASSWORD=your-secure-password
-MYSQL_DATABASE=todo_app
+MYSQL_DATABASE=testLocalDB
 
 # MongoDB Configuration (replace with your DocumentDB endpoint)
-MONGODB_URI=mongodb://your-documentdb-endpoint:27017/todo_app
+MONGODB_URI=mongodb://your-documentdb-endpoint:27017
 
 # Redis Configuration (replace with your ElastiCache endpoint)
 REDIS_HOST=your-elasticache-endpoint.cache.amazonaws.com
@@ -190,7 +190,7 @@ mkdir -p $BACKUP_DIR
 tar -czf $BACKUP_DIR/todo-app-$DATE.tar.gz /opt/todo-app --exclude=node_modules --exclude=logs
 
 # Backup MySQL (if using local MySQL)
-# mysqldump -u root -p$MYSQL_PASSWORD todo_app > $BACKUP_DIR/mysql-$DATE.sql
+# mysqldump -u root -p$MYSQL_PASSWORD testLocalDB > $BACKUP_DIR/mysql-$DATE.sql
 
 # Keep only last 7 days of backups
 find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete

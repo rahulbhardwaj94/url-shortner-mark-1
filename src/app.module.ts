@@ -4,7 +4,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MySqlModule } from './database/mysql/mysql.module';
 import { MongoDbModule } from './database/mongodb/mongodb.module';
 import { RedisModule } from './database/redis/redis.module';
-import { TodoModule } from './modules/todo/todo.module';
 import { HealthModule } from './modules/health/health.module';
 import configuration from './config/configuration';
 
@@ -24,7 +23,6 @@ import configuration from './config/configuration';
     MySqlModule,
     MongoDbModule,
     RedisModule,
-    TodoModule,
     HealthModule,
   ],
 })

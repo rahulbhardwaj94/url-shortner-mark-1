@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Todo } from './entities/todo.entity';
 
 @Module({
   imports: [
@@ -9,7 +8,7 @@ import { Todo } from './entities/todo.entity';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('app.mysql'),
-        models: [Todo],
+        models: [],
         autoLoadModels: true,
         synchronize: configService.get('app.nodeEnv') === 'development',
       }),
