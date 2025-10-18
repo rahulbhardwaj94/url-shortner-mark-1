@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Url } from './entities/url.entity';
 
 @Module({
   imports: [
@@ -8,9 +9,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('app.mysql'),
-        models: [],
+        models: [Url],
         autoLoadModels: true,
-        synchronize: configService.get('app.nodeEnv') === 'development',
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),

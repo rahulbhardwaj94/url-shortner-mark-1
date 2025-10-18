@@ -1,19 +1,22 @@
+# URL Shortener API
 
-# NestJS Todo API Boilerplate
-
-A production-ready NestJS application with MySQL, MongoDB, and Redis integration.
+A production-ready URL Shortener API built with NestJS, featuring MySQL storage, Redis caching, click analytics, and AWS Elastic Beanstalk deployment support.
 
 ## Features
 
-- ✅ RESTful API with Swagger documentation
-- ✅ MySQL database with Sequelize ORM
-- ✅ MongoDB integration with Mongoose
-- ✅ Redis caching layer
-- ✅ Unique title validation for todos
-- ✅ Update todos by title or ID
-- ✅ Comprehensive error handling
-- ✅ Docker containerization
-- ✅ PM2 process management
+- **URL Shortening**: Create short URLs from long URLs using nanoid
+- **URL Redirection**: Fast redirects with Redis caching
+- **Click Analytics**: Track click counts and last accessed time
+- **Framework**: NestJS with TypeScript
+- **Database**: MySQL with Sequelize ORM for persistent storage
+- **Cache**: Redis for high-performance URL lookups
+- **Documentation**: Swagger/OpenAPI integration
+- **Health Checks**: Comprehensive health monitoring
+- **Logging**: Structured logging with interceptors
+- **Security**: Helmet, CORS, and validation
+- **Testing**: Jest configuration for unit and e2e tests
+- **Docker**: Multi-stage Dockerfile for production
+- **Deployment**: AWS Elastic Beanstalk deployment with RDS and ElastiCache
 
 ## Quick Start
 
@@ -40,38 +43,83 @@ pm2 start ecosystem.config.js --env production
 
 ## API Endpoints
 
-### Todo Management
-- `GET /todos` - Get all todos
-- `POST /todos` - Create a new todo
-- `GET /todos/:id` - Get todo by ID
-- `GET /todos/title/:title` - Get todo by title
-- `PATCH /todos/:id` - Update todo by ID
-- `PATCH /todos/title/:title` - Update todo by title
-- `DELETE /todos/:id` - Delete todo by ID
+### URL Shortening
+- `POST /shorten` - Create a short URL from original URL
+- `GET /:code` - Redirect to original URL using short code
+- `GET /stats/:code` - Get URL statistics (click count, last accessed, etc.)
 
-### Debug Endpoints
-- `GET /todos/debug/redis/keys` - Get all Redis keys
-- `GET /todos/debug/redis/key/:key` - Get specific Redis key info
-- `DELETE /todos/debug/redis/clear` - Clear all Redis cache
-- `DELETE /todos/debug/redis/clear/todos` - Clear todo-related cache
+### Health Check
+- `GET /health` - Application health status
+
+### Documentation
+- `GET /api/docs` - Swagger API documentation
+
+## API Usage Examples
+
+### Shorten a URL
+```bash
+curl -X POST http://localhost:3000/shorten \
+  -H "Content-Type: application/json" \
+  -d '{"originalUrl": "https://www.example.com/very/long/url/path"}'
+```
+
+Response:
+```json
+{
+  "shortUrl": "http://localhost:3000/a1B2c3D",
+  "originalUrl": "https://www.example.com/very/long/url/path",
+  "shortCode": "a1B2c3D",
+  "clickCount": 0,
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "lastAccessedAt": null
+}
+```
+
+### Access Short URL
+```bash
+curl -I http://localhost:3000/a1B2c3D
+```
+
+Response:
+```
+HTTP/1.1 302 Found
+Location: https://www.example.com/very/long/url/path
+```
+
+### Get URL Statistics
+```bash
+curl http://localhost:3000/stats/a1B2c3D
+```
+
+Response:
+```json
+{
+  "shortCode": "a1B2c3D",
+  "originalUrl": "https://www.example.com/very/long/url/path",
+  "clickCount": 42,
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "lastAccessedAt": "2024-01-15T14:22:00.000Z"
+}
+```
 
 ## Environment Variables
 
-Copy `env.example` to `.env` and configure your database connections:
+Copy `env.example` to `.env` and configure your settings:
 
 ```env
 # Application
 NODE_ENV=development
 PORT=3000
+BASE_URL=http://localhost:3000
 
 # MySQL Configuration
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=your-password
-MYSQL_DATABASE=testLocalDB
+MYSQL_DATABASE=urlshortener
 
-# MongoDB Configuration
+# MongoDB Configuration (optional)
 MONGODB_URI=mongodb://localhost:27017/
 
 # Redis Configuration
@@ -80,7 +128,7 @@ REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0
 
-# JWT Configuration
+# JWT Configuration (for future use)
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=1d
 ```
@@ -102,58 +150,36 @@ docker-compose down
 ### Production
 ```bash
 # Build image
-docker build -t todo-app .
+docker build -t url-shortener-api .
 
 # Run container
-docker run -p 3000:3000 todo-app
+docker run -p 3000:3000 url-shortener-api
 ```
 
-## EC2 Deployment
+## AWS Elastic Beanstalk Deployment
 
 ### Prerequisites
-- EC2 instance with Ubuntu 20.04 LTS
-- Security groups configured for ports 22, 80, 443, 3000
-- RDS instance for MySQL (optional)
-- DocumentDB for MongoDB (optional)
-- ElastiCache for Redis (optional)
+- AWS CLI configured
+- EB CLI installed
+- RDS MySQL instance
+- ElastiCache Redis cluster (optional)
 
-### Deployment Steps
-1. **Launch EC2 instance**
-2. **Run deployment script**:
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
-3. **Configure environment variables**
-4. **Start application with PM2**
-
-### Manual Deployment
+### Quick Deployment
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
+# Initialize EB application
+eb init
 
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# Create environment
+eb create production
 
-# Install PM2
-sudo npm install -g pm2
+# Set environment variables
+eb setenv MYSQL_HOST=your-rds-endpoint.amazonaws.com MYSQL_PASSWORD=your-password
 
-# Clone repository
-git clone https://github.com/yourusername/boilerplate-nestjs.git
-cd boilerplate-nestjs
-
-# Install dependencies
-npm install
-
-# Build application
-npm run build
-
-# Start with PM2
-pm2 start ecosystem.config.js --env production
-pm2 save
-pm2 startup
+# Deploy
+eb deploy
 ```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Project Structure
 
@@ -168,35 +194,71 @@ src/
 │   ├── mongodb/            # MongoDB schemas and repositories
 │   └── redis/              # Redis services
 ├── modules/
-│   ├── auth/               # Authentication module
 │   ├── health/             # Health check module
-│   └── todo/               # Todo management module
+│   └── url/                # URL shortening module
 ├── exceptions/             # Global exception filters
 └── main.ts                 # Application entry point
 ```
 
 ## Database Schema
 
-### MySQL (Primary)
-- **todos** table with auto-increment ID
-- Unique title constraint
-- User association support
-
-### MongoDB (Secondary)
-- **todos** collection with ObjectId
-- Same schema as MySQL for consistency
-- Used for additional querying capabilities
+### MySQL (Primary Storage)
+- **urls** table with auto-increment ID
+- **originalUrl**: TEXT field for the original URL
+- **shortCode**: VARCHAR(10) unique field for the short code
+- **clickCount**: INTEGER for tracking clicks
+- **lastAccessedAt**: DATETIME for last access timestamp
+- **createdAt/updatedAt**: Automatic timestamps
 
 ### Redis (Caching)
-- `todo:{id}` - Individual todo cache (1 hour TTL)
-- `todos:all` - All todos cache (5 minutes TTL)
-- `todos:user:{userId}` - User-specific todos cache (5 minutes TTL)
+- `url:{shortCode}` - URL mapping cache (24 hours TTL)
+- Used for fast URL lookups and redirections
+
+## Technical Details
+
+### Short Code Generation
+- Uses `nanoid(7)` for 7-character codes
+- Collision probability: ~146 years to 1% at 1000 IDs/hour
+- Automatic retry mechanism for collision handling
+
+### Caching Strategy
+- Redis cache for short code → original URL mapping
+- 24-hour TTL for cached URLs
+- Cache-aside pattern with database fallback
+
+### Click Tracking
+- Asynchronous click count updates
+- Non-blocking redirects for performance
+- Last accessed timestamp tracking
 
 ## API Documentation
 
 Once the application is running, visit:
-- **Swagger UI**: `http://localhost:3000/api`
+- **Swagger UI**: `http://localhost:3000/api/docs`
 - **Health Check**: `http://localhost:3000/health`
+
+## Performance Considerations
+
+- **Redis Caching**: Reduces database load for frequent lookups
+- **Connection Pooling**: Optimized database connections
+- **Async Operations**: Non-blocking click tracking
+- **Indexed Queries**: Database indexes on shortCode field
+- **Compression**: Gzip compression for API responses
+
+## Security Features
+
+- **Input Validation**: URL format validation and length limits
+- **SQL Injection Protection**: Sequelize ORM with parameterized queries
+- **CORS Configuration**: Configurable cross-origin resource sharing
+- **Helmet**: Security headers for HTTP responses
+- **Rate Limiting**: Throttling to prevent abuse
+
+## Monitoring and Logging
+
+- **Structured Logging**: JSON-formatted logs with context
+- **Health Checks**: Comprehensive application health monitoring
+- **Error Tracking**: Global exception handling and logging
+- **Performance Metrics**: Request timing and response logging
 
 ## Contributing
 
@@ -208,4 +270,4 @@ Once the application is running, visit:
 
 ## License
 
-ISC# task-manager-nest
+ISC

@@ -5,6 +5,7 @@ import { MySqlModule } from './database/mysql/mysql.module';
 import { MongoDbModule } from './database/mongodb/mongodb.module';
 import { RedisModule } from './database/redis/redis.module';
 import { HealthModule } from './modules/health/health.module';
+import { UrlModule } from './modules/url/url.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -24,6 +25,7 @@ import configuration from './config/configuration';
     MongoDbModule,
     RedisModule,
     HealthModule,
+    UrlModule,
   ],
 })
 export class AppModule {}

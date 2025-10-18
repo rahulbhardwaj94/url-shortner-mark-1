@@ -43,12 +43,12 @@ async function bootstrap() {
 
   // Swagger Documentation
   const config = new DocumentBuilder()
-    .setTitle('NestJS Boilerplate API')
+    .setTitle('URL Shortener API')
     .setDescription(
-      'A comprehensive NestJS boilerplate with MySQL, MongoDB, and Redis',
+      'A production-ready URL Shortener API with MySQL storage, Redis caching, and click analytics',
     )
     .setVersion('1.0')
-    .addTag('todos', 'Todo management endpoints')
+    .addTag('urls', 'URL shortening and redirection endpoints')
     .addTag('health', 'Health check endpoints')
     .addBearerAuth()
     .build();
