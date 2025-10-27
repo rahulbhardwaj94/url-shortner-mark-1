@@ -38,36 +38,45 @@ export class UrlService {
       return this.mapToResponseDto(existingUrl);
     }
 
-    // Generate unique short code
+    // Generate unique short code using optimistic insertion
     let shortCode: string;
-    let isUnique = false;
+    let url: Url;
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxAttempts = 10; // Increase attempts since we're not doing SELECT queries
 
-    while (!isUnique && attempts < maxAttempts) {
-      shortCode = nanoid(7);
-      const existing = await this.urlModel.findOne({
-        where: { shortCode },
-      });
-
-      if (!existing) {
-        isUnique = true;
+    while (attempts < maxAttempts) {
+      shortCode = nanoid(8); // Increased length for better uniqueness
+      
+      try {
+        // Try to create the URL - let database enforce uniqueness
+        url = await this.urlModel.create({
+          originalUrl,
+          shortCode,
+          clickCount: 0,
+        });
+        
+        // Success! Break out of the loop
+        break;
+      } catch (error) {
+        // If it's a unique constraint violation, retry with a new code
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          attempts++;
+          this.logger.warn(
+            `Collision detected for shortCode: ${shortCode}, attempting again (${attempts}/${maxAttempts})`,
+          );
+          continue;
+        }
+        // For other errors, re-throw
+        throw error;
       }
-      attempts++;
     }
 
-    if (!isUnique) {
+    // If we exhausted attempts without success
+    if (attempts >= maxAttempts) {
       throw new Error(
         'Failed to generate unique short code after multiple attempts',
       );
     }
-
-    // Create new URL record
-    const url = await this.urlModel.create({
-      originalUrl,
-      shortCode,
-      clickCount: 0,
-    });
 
     // Cache the mapping
     await this.cacheUrl(shortCode, originalUrl);
